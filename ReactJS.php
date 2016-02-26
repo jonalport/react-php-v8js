@@ -23,6 +23,12 @@ class ReactJS {
     $component,
 
     /**
+     * The JavaScript scope in which React components are contained (defaults to null)
+     * @var string
+     */
+    $componentScope = null,
+
+    /**
      * Properties that go along with the component
      * @var mixed
      */
@@ -82,6 +88,31 @@ class ReactJS {
   }
 
   /**
+   * Sets the JavaScript scope in which React components are contained
+   *
+   * @param string $scope The JavaScript scope (Eg. 'window.app.components')
+   * @return ReactJS $this instance
+   */
+  function setComponentScope($scope) {
+    $this->componentScope = $scope;
+    return $this;
+  }
+
+  /**
+   * Returns the component scope, including "dot" delimiter
+   *
+   * @return string HTML string
+   */
+  function getComponentScope() {
+    if ($this->componentScope != null) {
+      return $this->componentScope . '.';
+    }
+    else {
+      return '';
+    }
+  }
+
+  /**
    * Custom error handler. The default one var_dumps the exception
    * and die()s.
    *
@@ -100,7 +131,8 @@ class ReactJS {
    */
   function getMarkup() {
     $js = sprintf(
-      "print(ReactDOMServer.renderToString(React.createElement(%s, %s)))",
+      "print(ReactDOMServer.renderToString(React.createElement(%s%s, %s)))",
+      $this->getComponentScope(),
       $this->component,
       $this->data);
 
@@ -137,7 +169,8 @@ class ReactJS {
     return
       ($return_var ? "var $return_var = " : "") .
       sprintf(
-        "ReactDOM.render(React.createElement(%s, %s), %s);",
+        "ReactDOM.render(React.createElement(%s%s, %s), %s);",
+        $this->getComponentScope(),
         $this->component,
         $this->data,
         $where
@@ -145,7 +178,7 @@ class ReactJS {
   }
 
   /**
-   * Executes Javascript using V8JS, with primitive exception handling
+   * Executes JavaScript using V8JS, with primitive exception handling
    *
    * @param string $js JS code to be executed
    * @return string The execution response
@@ -167,5 +200,4 @@ class ReactJS {
       }
     }
   }
-
 }
